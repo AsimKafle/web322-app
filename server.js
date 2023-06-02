@@ -17,7 +17,7 @@ var itemsData=require('./data/items.json');
 var categoriesData=require('./data/categories.json');
 const storeService = require('./store-service');
 // Set the port to process.env.PORT or 8080
-var HTTP_PORT = process.env.PORT || 8081;
+var HTTP_PORT = process.env.PORT || 8080;
 
 app.use(express.static('public'));
 //shop
