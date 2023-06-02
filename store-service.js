@@ -1,56 +1,76 @@
-var express = require("express");
-var app = express();
-var itemsData=require('./data/items.json');
-var categoriesData=require('./data/categories.json');
-const storeService = require('./store-service');
-// Set the port to process.env.PORT or 8080
-var HTTP_PORT = process.env.PORT || 8080;
+const fs=require("fs");
+let itemsA=[];
+let categoriesA=[];
 
-app.use(express.static('public'));
-//shop
-app.get("/shop",(req,res)=>{
-    storeService.getPublishedItems().then((itemsData)=>{
-        res.json(itemsData);
-    }).catch((error)=>{
-        res.status(500).json({message:err});
-    });
-});
-//items
-app.get("/items",(req,res)=>{
-    storeService.getAllitems().then((itemsData)=>{
-        res.json(itemsData);
-    }).catch((error)=>{
-        res.status(500).json({message:err});
-    });
-});
-//categories
-app.get("/categories",(req,res)=>{
-    storeService.getCategories().then((categoriesData)=>{
-        res.json(categoriesData);
-    }).catch((error)=>{
-        res.status(500).json({message:err});
-    });
-});
-// Redirect the root URL ("/") to the "/about" route
-app.get("/", (req, res) => {
-    res.redirect("/about");
-});
 
-// Return the about.html file from the 'views' folder
-app.get("/about", (req, res) => {
-    res.sendFile(__dirname + "/views/about.html");
-});
-
-app.use((req,res)=>{
-    res.status(404).send('Page Not FOund');
-});
-// Start the server and listen on the specified port
-
-storeService.initialize().then(()=>{
-    app.listen(HTTP_PORT, () => {
-        console.log("Express http server listening on " + HTTP_PORT);
+initialize=function(){
+    return new Promise((resolve,reject)=>{
+        fs.readFile('./data/items.json', 'utf8', (err, itemsdata) => {
+            if (err) {
+              reject('Unable to read items.json file');
+            } else {
+              try {
+                const itemsArray = JSON.parse(itemsdata);
+                itemsA = itemsArray;
+                fs.readFile('./data/categories.json','utf8',(err,catdata)=>
+                {
+                    if(err){
+                        reject('Unable to read categories.json file');
+                    }else{
+                        try{
+                            const categArray=JSON.parse(catdata);
+                            categoriesA=categArray;
+                            resolve();
+                        }
+                        catch(parseError){
+                            reject('Error parsing categories.json file');
+                        }
+                    }
+                });
+              } catch (parseError) {
+                reject('Error parsing items.json file');
+              }
+            } 
+    })
     });
-    
-}).catch((error)=>{
-    console.error('Error in initializing Store Service');
-});
+}
+
+getAllitems=function(){
+    return new Promise((resolve,reject)=>{
+        if(itemsA.length===0){
+            reject('No results returned');
+        }
+        else{
+            resolve(itemsA);
+        }
+    });
+}
+
+getPublishedItems=function(){
+    return new Promise((resolve,reject)=>{
+        const pItems=itemsA.filter(item=>item.published===true);
+        if(pItems.length===0){
+            reject('No results returned');
+        }
+        else{
+            
+            resolve(pItems);
+        }
+    });
+}
+
+getCategories=function(){
+    return new Promise((resolve,reject)=>{
+        if(categoriesA.length===0){
+            reject('No results returned');
+        } else{
+            resolve(categoriesA);
+        }
+        });
+}
+module.exports={
+    initialize,
+    getAllitems,
+    getPublishedItems,
+    getCategories
+}
