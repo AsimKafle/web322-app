@@ -11,8 +11,8 @@ GitHub Repository URL: https://github.com/AsimKafle/web322-app
 
 ********************************************************************************/
 const fs=require("fs");
-let itemsA=[];
-let categoriesA=[];
+let items=[];
+let categories=[];
 
 
 initialize=function(){
@@ -22,8 +22,8 @@ initialize=function(){
               reject('Unable to read items.json file');
             } else {
               try {
-                const itemsArray = JSON.parse(itemsdata);
-                itemsA = itemsArray;
+                const itemsrray = JSON.parse(itemsdata);
+                items = itemsrray;
                 fs.readFile('./data/categories.json','utf8',(err,catdata)=>
                 {
                     if(err){
@@ -31,7 +31,7 @@ initialize=function(){
                     }else{
                         try{
                             const categArray=JSON.parse(catdata);
-                            categoriesA=categArray;
+                            categories=categArray;
                             resolve();
                         }
                         catch(parseError){
@@ -49,18 +49,18 @@ initialize=function(){
 
 getAllitems=function(){
     return new Promise((resolve,reject)=>{
-        if(itemsA.length===0){
+        if(items.length===0){
             reject('No results returned');
         }
         else{
-            resolve(itemsA);
+            resolve(items);
         }
     });
 }
 
 getPublishedItems=function(){
     return new Promise((resolve,reject)=>{
-        const pItems=itemsA.filter(item=>item.published===true);
+        const pItems=items.filter(item=>item.published===true);
         if(pItems.length===0){
             reject('No results returned');
         }
@@ -73,16 +73,71 @@ getPublishedItems=function(){
 
 getCategories=function(){
     return new Promise((resolve,reject)=>{
-        if(categoriesA.length===0){
+        if(categories.length===0){
             reject('No results returned');
         } else{
-            resolve(categoriesA);
+            resolve(categories);
         }
         });
-}
+    }
+addItem = function(itemData){
+            return new Promise((resolve, reject) => {
+                if (itemData.published === undefined) {
+                    itemData.published = false;
+                } else {
+                    itemData.published = true;
+                }
+                itemData.id = items.length + 1;
+                items.push(itemData);
+                resolve(itemData);
+            });
+        } 
+        
+getItemsByMinDate = function(minDateStr){
+            return new Promise((resolve, reject) => {
+                const filteredItems = items.filter(item => new Date(item.postDate) >= new Date(minDateStr));
+        
+                if (filteredItems.length > 0) {
+                    resolve(filteredItems);
+                } else {
+                    reject("no results returned");
+                }
+            });
+        }
+
+getItemsByCategory = function (category) {
+            return new Promise((resolve, reject) => {
+                const filteredItems = items.filter(item => item.category == category);
+        
+                if (filteredItems.length > 0) {
+                    resolve(filteredItems);
+                } else {
+                    reject("no results returned");
+                }
+            })
+        }
+
+getItemById = function (id) {
+            return new Promise((resolve, reject) => {
+                const filteredItems = items.filter(item => item.id == id);
+                
+        
+                if (filteredItems) {
+                    resolve(filteredItems);
+                }
+                else {
+                    reject("no result returned");
+                }
+            })
+        }                   
+
 module.exports={
     initialize,
     getAllitems,
     getPublishedItems,
-    getCategories
+    getCategories,
+    addItem,
+    getItemsByMinDate,
+    getItemsByCategory,
+    getItemById
 }
