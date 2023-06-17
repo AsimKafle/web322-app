@@ -24,13 +24,13 @@ initialize=function(){
               try {
                 const itemsrray = JSON.parse(itemsdata);
                 items = itemsrray;
-                fs.readFile('./data/categories.json','utf8',(err,catdata)=>
+                fs.readFile('./data/categories.json','utf8',(err,data)=>
                 {
                     if(err){
                         reject('Unable to read categories.json file');
                     }else{
                         try{
-                            const categArray=JSON.parse(catdata);
+                            const categArray=JSON.parse(data);
                             categories=categArray;
                             resolve();
                         }
