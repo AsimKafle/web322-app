@@ -1,11 +1,11 @@
 /*********************************************************************************
 
-WEB322 – Assignment 03
+WEB322 – Assignment 04
 I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
 
 Name: Asim Kafle
 Student ID: 152035218
-Date: 2023/06/16
+Date: 2023/06/30
 Cyclic Web App URL: https://funny-erin-puffer.cyclic.app/
 GitHub Repository URL: https://github.com/AsimKafle/web322-app
 
@@ -129,7 +129,19 @@ getItemById = function (id) {
                     reject("no result returned");
                 }
             })
-        }                   
+        }   
+        
+         getPublishedItemsByCategory = function(category) {
+            return new Promise((resolve, reject) => {
+                const filteredItems = items.filter(item => item.category == category && item.published === true);
+        
+                if (filteredItems.length > 0) {
+                    resolve(filteredItems);
+                } else {
+                    reject("no results returned");
+                }
+            })
+        }
 
 module.exports={
     initialize,
@@ -139,5 +151,6 @@ module.exports={
     addItem,
     getItemsByMinDate,
     getItemsByCategory,
-    getItemById
+    getItemById,
+    getPublishedItemsByCategory
 }
